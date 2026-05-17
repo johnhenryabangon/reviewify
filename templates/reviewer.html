@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+{% block title %}{{ r['title'] }} — Reviewify{% endblock %}
+{% block content %}
+<div class="flex items-center justify-between mb-6 print:hidden flex-wrap gap-3">
+  <div>
+    <a href="{{ url_for('index') }}" class="text-sm text-slate-500 hover:underline">← Back</a>
+    <h1 class="font-serif text-4xl mt-2">{{ r['title'] }}</h1>
+    <p class="text-xs text-slate-500 mt-1">
+      {{ lessons|length }} lesson{{ '' if lessons|length == 1 else 's' }} ·
+      {{ r['mode'] }} · {{ r['created_at'] }}
+    </p>
+    <p class="text-xs text-slate-400 mt-1 truncate max-w-xl">From: {{ r['source_filename'] }}</p>
+  </div>
+  <div class="flex gap-2">
+    <a href="{{ url_for('export', rid=r['id'], fmt='pdf') }}" class="px-4 py-2 rounded-lg bg-slate-900 text-white dark:bg-white dark:text-slate-900 text-sm font-medium">Export PDF</a>
+    <a href="{{ url_for('export', rid=r['id'], fmt='docx') }}" class="px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-700 text-sm font-medium">Export DOCX</a>
+    <button onclick="window.print()" class="px-4 py-2 rounded-lg border border-slate-300 dark:border-slate-700 text-sm font-medium">Print</button>
+  </div>
+</div>
+
+{% if lessons|length > 1 %}
+  <nav class="print:hidden mb-6 flex flex-wrap gap-2">
+    {% for l in lessons %}
+      <a href="#lesson-{{ loop.index }}" class="text-xs px-3 py-1.5 rounded-full border border-slate-200 dark:border-slate-700 hover:border-indigo-400 hover:text-indigo-600 transition">
+        {{ loop.index }}. {{ l.title }}
+      </a>
+    {% endfor %}
+  </nav>
+{% endif %}
+
+{% for lesson in lessons %}
+  <section id="lesson-{{ loop.index }}" class="mb-10 {% if not loop.first %}pt-8 border-t-2 border-dashed border-slate-200 dark:border-slate-800{% endif %}">
+    <header class="mb-5 print:mb-3">
+      <div class="text-xs uppercase tracking-widest text-indigo-600 dark:text-indigo-400">Lesson {{ loop.index }}</div>
+      <h2 class="font-serif text-3xl mt-1">{{ lesson.title }}</h2>
+      <div class="text-xs text-slate-400 mt-1">{{ lesson.source }}</div>
+    </header>
+
+    <article class="reviewer columns-1 md:columns-2 gap-8 [column-rule:1px_solid_theme(colors.slate.200)] dark:[column-rule:1px_solid_theme(colors.slate.800)]">
+      {% for s in lesson.sections %}
+        <section class="break-inside-avoid mb-5">
+          <h3 class="font-semibold text-slate-900 dark:text-slate-100 text-base mb-1">{{ s.heading }}</h3>
+          {% if s.subheading %}
+            <p class="text-xs italic text-slate-500 mb-1">{{ s.subheading }}</p>
+          {% endif %}
+          {% if s.summary %}
+            <p class="text-sm text-slate-700 dark:text-slate-300 leading-snug mb-2">{{ s.summary }}</p>
+          {% endif %}
+          {% if s.bullets %}
+            <ul class="list-disc pl-5 space-y-1 text-sm text-slate-700 dark:text-slate-300">
+              {% for b in s.bullets %}<li>{{ b }}</li>{% endfor %}
+            </ul>
+          {% endif %}
+          {% if s.formulas %}
+            <div class="mt-2 space-y-1">
+              {% for f in s.formulas %}
+                <div class="text-xs font-mono px-2 py-1 rounded bg-emerald-50 dark:bg-emerald-950/40 text-emerald-700 dark:text-emerald-300 inline-block mr-1">ƒ {{ f }}</div>
+              {% endfor %}
+            </div>
+          {% endif %}
+          {% if s.images %}
+            <div class="mt-3 space-y-2">
+              {% for img in s.images[:3] %}
+                <img src="{{ img }}" alt="figure" loading="lazy" class="rounded-lg border border-slate-200 dark:border-slate-800 max-h-56 w-auto print:max-h-40" />
+              {% endfor %}
+            </div>
+          {% endif %}
+          {% if s.keywords %}
+            <div class="mt-2 flex flex-wrap gap-1">
+              {% for k in s.keywords %}
+                <span class="text-[10px] uppercase tracking-wide px-2 py-0.5 rounded-full bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300">{{ k }}</span>
+              {% endfor %}
+            </div>
+          {% endif %}
+        </section>
+      {% endfor %}
+    </article>
+  </section>
+{% endfor %}
+{% endblock %}

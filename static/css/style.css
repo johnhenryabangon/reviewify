@@ -1,0 +1,16 @@
+/* Print: tighten layout, hide chrome */
+@media print {
+  header, .print\:hidden { display: none !important; }
+  body { background: white !important; color: black !important; }
+  main { padding: 0 !important; max-width: 100% !important; }
+  .reviewer { column-count: 2; column-gap: 1.5rem; font-size: 10pt; }
+  .reviewer h2 { font-size: 11pt; }
+  .reviewer section { break-inside: avoid; page-break-inside: avoid; }
+}
+
+/* Subtle glass effect on cards (already mostly handled by Tailwind utilities) */
+.glass {
+  backdrop-filter: blur(12px);
+  background: rgba(255,255,255,0.6);
+}
+.dark .glass { background: rgba(15,23,42,0.5); }

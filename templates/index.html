@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="text-center max-w-3xl mx-auto mb-10">
+  <div class="inline-flex items-center gap-2 text-xs uppercase tracking-widest text-indigo-600 dark:text-indigo-400 mb-3">
+    <span class="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse"></span>
+    AI study assistant
+  </div>
+  <h1 class="font-serif text-5xl md:text-6xl tracking-tight mb-3">Compile lectures into one reviewer.</h1>
+  <p class="text-slate-600 dark:text-slate-400">Upload multiple PDF or PowerPoint files. Reviewify extracts text, diagrams, formulas, and keywords — then organizes them into clean, printable student notes.</p>
+</section>
+
+<form id="uploadForm" action="{{ url_for('upload') }}" method="post" enctype="multipart/form-data" class="rounded-2xl border border-slate-200/70 dark:border-slate-800/70 bg-white/60 dark:bg-slate-900/40 backdrop-blur p-6 shadow-sm">
+  <label id="dropzone" for="files" class="flex flex-col items-center justify-center gap-2 border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-xl py-14 cursor-pointer hover:border-indigo-400 transition">
+    <div class="w-12 h-12 rounded-full bg-indigo-100 dark:bg-indigo-950/60 grid place-items-center text-indigo-600 dark:text-indigo-400 text-2xl">↑</div>
+    <div class="font-medium">Drop files or click to upload</div>
+    <div class="text-xs text-slate-500">PDF, PPT, PPTX · multi-upload · up to 60 MB total</div>
+    <input id="files" name="files" type="file" multiple accept=".pdf,.ppt,.pptx" class="hidden" />
+  </label>
+
+  <!-- Reorderable lesson queue -->
+  <div id="queueWrap" class="mt-5 hidden">
+    <div class="flex items-center justify-between mb-2">
+      <div class="text-xs uppercase tracking-wide text-slate-500">Lesson order · drag to reorder</div>
+      <button type="button" id="clearBtn" class="text-xs text-slate-500 hover:text-red-500">Clear all</button>
+    </div>
+    <ul id="queue" class="space-y-2"></ul>
+    <input type="hidden" name="order" id="orderInput" />
+  </div>
+
+  <div class="mt-6 grid sm:grid-cols-3 gap-4">
+    <div class="sm:col-span-2">
+      <label class="block text-xs font-medium uppercase tracking-wide text-slate-500 mb-1">Reviewer title (optional)</label>
+      <input name="title" placeholder="e.g. Midterms — Data Structures" class="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm" />
+    </div>
+    <div>
+      <label class="block text-xs font-medium uppercase tracking-wide text-slate-500 mb-1">Reviewer mode</label>
+      <select name="mode" class="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm">
+        <option value="concise">Concise</option>
+        <option value="detailed">Detailed</option>
+      </select>
+    </div>
+  </div>
+
+  <div class="mt-4 flex items-center justify-between flex-wrap gap-3">
+    <label class="flex items-center gap-2 cursor-pointer text-sm text-slate-700 dark:text-slate-300">
+      <input type="checkbox" name="use_ai" class="rounded" />
+      Use AI summarization (slower, downloads model on first run)
+    </label>
+    <button id="submitBtn" type="submit" class="px-5 py-2.5 rounded-lg bg-slate-900 text-white dark:bg-white dark:text-slate-900 font-medium hover:opacity-90 transition disabled:opacity-50">
+      <span class="btn-label">Generate reviewer →</span>
+      <span class="btn-loading hidden">Processing…</span>
+    </button>
+  </div>
+
+  <!-- Progress overlay -->
+  <div id="progress" class="hidden mt-5 rounded-xl border border-indigo-200/60 dark:border-indigo-900/60 bg-indigo-50/60 dark:bg-indigo-950/30 px-4 py-3 text-sm text-indigo-800 dark:text-indigo-200 flex items-center gap-3">
+    <svg class="animate-spin w-4 h-4" viewBox="0 0 24 24" fill="none">
+      <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3" opacity=".25"/>
+      <path d="M22 12a10 10 0 0 0-10-10" stroke="currentColor" stroke-width="3"/>
+    </svg>
+    Extracting text · detecting diagrams · summarizing… large files may take a minute.
+  </div>
+</form>
+
+{% if recent %}
+  <section class="mt-12">
+    <h2 class="font-serif text-2xl mb-4">Recent reviewers</h2>
+    <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      {% for r in recent %}
+        <div class="rounded-xl border border-slate-200/70 dark:border-slate-800/70 bg-white/70 dark:bg-slate-900/40 p-4 hover:shadow-md transition">
+          <a href="{{ url_for('reviewer', rid=r['id']) }}" class="block">
+            <div class="font-medium truncate">{{ r['title'] }}</div>
+            <div class="text-xs text-slate-500 mt-1 truncate">{{ r['source_filename'] }}</div>
+            <div class="text-xs text-slate-400 mt-2">{{ r['created_at'] }} · {{ r['mode'] }}</div>
+          </a>
+          <form method="post" action="{{ url_for('delete', rid=r['id']) }}" class="mt-3 text-right">
+            <button class="text-xs text-red-500 hover:underline" onclick="return confirm('Delete this reviewer?')">Delete</button>
+          </form>
+        </div>
+      {% endfor %}
+    </div>
+  </section>
+{% endif %}
+
+<script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
+{% endblock %}

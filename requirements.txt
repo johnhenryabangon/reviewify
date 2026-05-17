@@ -1,0 +1,11 @@
+Flask>=3.0,<4
+python-pptx>=1.0
+pdfplumber>=0.11
+pymupdf>=1.24          # image extraction from PDFs
+python-docx>=1.1
+reportlab>=4.2
+Pillow>=10.0           # image filtering / resizing
+
+# Optional AI summarization (large download, ~1.5GB).
+# Install separately if you want the "Use AI summarization" checkbox to work:
+#   pip install transformers torch
