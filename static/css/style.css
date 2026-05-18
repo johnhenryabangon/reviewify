@@ -1,16 +1,33 @@
+/* Minimalist base tweaks */
+html { -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
+body { font-feature-settings: "ss01", "cv11"; }
+
+/* Sortable drag visuals */
+.sortable-ghost { opacity: 0.35; }
+.sortable-chosen { cursor: grabbing; }
+
+/* Queue item base */
+.queue-item {
+  display: flex; align-items: center; gap: 0.625rem;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid rgb(238 238 236);
+  background: #fff;
+  border-radius: 0.5rem;
+  font-size: 0.8125rem;
+  cursor: grab;
+}
+.dark .queue-item { background: rgba(255,255,255,0.03); border-color: rgba(255,255,255,0.08); }
+.queue-item .handle { color: #9ca3af; }
+.queue-item .name { flex: 1; truncate: true; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.queue-item .remove { color: #9ca3af; font-size: 0.75rem; }
+.queue-item .remove:hover { color: #ef4444; }
+
 /* Print: tighten layout, hide chrome */
 @media print {
-  header, .print\:hidden { display: none !important; }
+  header, footer, .print\:hidden { display: none !important; }
   body { background: white !important; color: black !important; }
   main { padding: 0 !important; max-width: 100% !important; }
   .reviewer { column-count: 2; column-gap: 1.5rem; font-size: 10pt; }
-  .reviewer h2 { font-size: 11pt; }
+  .reviewer h2, .reviewer h3 { color: black !important; }
   .reviewer section { break-inside: avoid; page-break-inside: avoid; }
 }
-
-/* Subtle glass effect on cards (already mostly handled by Tailwind utilities) */
-.glass {
-  backdrop-filter: blur(12px);
-  background: rgba(255,255,255,0.6);
-}
-.dark .glass { background: rgba(15,23,42,0.5); }
